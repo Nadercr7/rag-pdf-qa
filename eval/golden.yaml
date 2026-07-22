@@ -1,0 +1,104 @@
+# Golden Q&A set over sample_pdfs/ (the fictional Meridian Labs corpus).
+#
+# Ground truth mirrors scripts/make_sample_pdfs.py, which self-verifies that each
+# fact is printed on the expected page — so citation expectations here are exact.
+#
+# type: grounded  -> answer must NOT refuse, must contain every expect_answer_contains
+#                    substring (case-insensitive), and must cite expect_citation.
+# type: not_found -> answer must be EXACTLY "I couldn't find this in the documents."
+#                    (asserted verbatim against rag.config.NOT_FOUND_MESSAGE).
+
+questions:
+  # ── grounded ────────────────────────────────────────────────────────────────
+  - id: vacation-days
+    type: grounded
+    question: How many days of paid vacation do full-time employees get each year?
+    expect_answer_contains: ["20"]
+    expect_citation: { document: meridian_employee_handbook.pdf, page: 1 }
+
+  - id: core-hours
+    type: grounded
+    question: What are the core working hours at Meridian Labs?
+    expect_answer_contains: ["10:00", "4:00"]
+    expect_citation: { document: meridian_employee_handbook.pdf, page: 1 }
+
+  - id: remote-days
+    type: grounded
+    question: How many days per week can employees work remotely?
+    expect_answer_contains: ["3"]
+    expect_citation: { document: meridian_employee_handbook.pdf, page: 2 }
+
+  - id: password-length
+    type: grounded
+    question: What is the minimum password length required?
+    expect_answer_contains: ["14"]
+    expect_citation: { document: meridian_it_security_policy.pdf, page: 1 }
+
+  - id: password-rotation
+    type: grounded
+    question: How often must passwords be rotated?
+    expect_answer_contains: ["180"]
+    expect_citation: { document: meridian_it_security_policy.pdf, page: 1 }
+
+  - id: incident-reporting
+    type: grounded
+    question: How quickly must a suspected security incident be reported?
+    expect_answer_contains: ["1 hour"]
+    expect_citation: { document: meridian_it_security_policy.pdf, page: 2 }
+
+  - id: data-tiers
+    type: grounded
+    question: What are the four data classification tiers?
+    expect_answer_contains: ["Public", "Internal", "Confidential", "Restricted"]
+    expect_citation: { document: meridian_it_security_policy.pdf, page: 2 }
+
+  - id: meal-limit
+    type: grounded
+    question: What is the daily meal reimbursement limit for domestic travel?
+    expect_answer_contains: ["75"]
+    expect_citation: { document: meridian_expense_travel_policy.pdf, page: 1 }
+
+  - id: expense-approval
+    type: grounded
+    question: What approval is needed for a single expense over $1,000?
+    expect_answer_contains: ["Vice President"]
+    expect_citation: { document: meridian_expense_travel_policy.pdf, page: 1 }
+
+  - id: 401k-match
+    type: grounded
+    question: How much does the company match on 401(k) contributions?
+    expect_answer_contains: ["6%"]
+    expect_citation: { document: meridian_benefits_guide.pdf, page: 1 }
+
+  - id: parental-leave
+    type: grounded
+    question: How many weeks of paid parental leave does Meridian Labs provide?
+    expect_answer_contains: ["16"]
+    expect_citation: { document: meridian_benefits_guide.pdf, page: 2 }
+
+  - id: wellness-stipend
+    type: grounded
+    question: What is the annual wellness stipend amount?
+    expect_answer_contains: ["500"]
+    expect_citation: { document: meridian_benefits_guide.pdf, page: 2 }
+
+  # ── not in the documents (must refuse with the exact string) ────────────────
+  - id: vehicle-allowance          # HARD negative: mileage reimbursement exists,
+    type: not_found                # a company car / vehicle allowance does not.
+    question: Does the company offer a company car or vehicle allowance?
+
+  - id: pet-insurance              # near-domain negative: benefits exist, pet
+    type: not_found                # insurance is never mentioned.
+    question: What is the company's policy on pet insurance?
+
+  - id: stock-options              # HARD negative: "vesting" appears for 401(k)
+    type: not_found                # matching, but stock options are never covered.
+    question: What is the stock option vesting schedule?
+
+  - id: contractor-vacation        # HARD negative: vacation policy covers
+    type: not_found                # full-time employees only.
+    question: How many vacation days do part-time contractors receive?
+
+  - id: off-topic-cooking          # off-topic: should die at the retrieval gate
+    type: not_found                # (deterministic, no LLM call).
+    question: What is the best way to cook rice?

@@ -67,3 +67,14 @@ Append-only. What changed + what was *verified*, per milestone. Survives context
 - test_not_found (5): low-relevance → EXACT refusal with NO LLM call (RaisingChat proof,
   stage=retrieval); drifted model refusal normalized to exact string; citations mapped to doc+page;
   no-marker fallback to top source; parse_citations variants incl. out-of-range.
+
+## M8 — golden eval (verified: 17/17 PASS, first run)
+- `eval/golden.yaml`: 12 grounded (each with expected substrings + exact doc+page citation) + 5 not-found:
+  vehicle-allowance, pet-insurance, stock-options (vs 401(k) "vesting" text!), contractor-vacation
+  (full-time-only policy), off-topic-cooking.
+- `eval/eval.py`: self-contained (idempotent ingest), prints config + pass/fail table + refusal stages,
+  exit code gates CI-style usage.
+- RESULT: 17/17. All 12 grounded cited the correct document+page. 4 hard negatives refused with the
+  EXACT string via stage=model (rule-4 grounding works); off-topic refused via stage=retrieval (no LLM).
+- Added `Answer.citations` (unique doc+page, order-preserving) after spotting a duplicate "p.1, p.1"
+  display on 401k-match; covered by an offline test. pytest now 15 passed.

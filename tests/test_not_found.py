@@ -65,6 +65,22 @@ def test_answer_without_markers_falls_back_to_top_source(make_settings):
     assert [(x.document_name, x.page_number) for x in a.sources] == [("handbook.pdf", 1)]
 
 
+def test_citations_dedupe_same_document_and_page(make_settings):
+    s = make_settings()
+    store, emb = VectorStore(s), FakeEmbeddings(AXES)
+    store.add_chunks(
+        [
+            Chunk("Vacation part one.", "handbook.pdf", 1, 0),
+            Chunk("Vacation part two.", "handbook.pdf", 1, 1),
+        ],
+        emb,
+    )
+    chat = StaticChat("Both parts matter [Source 1][Source 2].")
+    a = answer("vacation details?", store, emb, chat, s)
+    assert len(a.sources) == 2               # two distinct chunks cited...
+    assert a.citations == [("handbook.pdf", 1)]  # ...but one display citation
+
+
 def test_parse_citations_variants():
     assert parse_citations("A [Source 1]. B [Source 2].", 3) == [1, 2]
     assert parse_citations("A [Sources 1, 3].", 3) == [1, 3]

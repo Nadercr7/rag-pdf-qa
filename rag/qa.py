@@ -54,6 +54,19 @@ class Answer:
     not_found: bool
     refusal_stage: str | None    # None | "retrieval" (gate 1) | "model" (gates 2+3)
 
+    @property
+    def citations(self) -> list[tuple[str, int]]:
+        """Unique (document, page) pairs cited, in first-mention order — two chunks
+        from the same page collapse into one display citation."""
+        seen: set[tuple[str, int]] = set()
+        out: list[tuple[str, int]] = []
+        for src in self.sources:
+            key = (src.document_name, src.page_number)
+            if key not in seen:
+                seen.add(key)
+                out.append(key)
+        return out
+
 
 # ────────────────────────────── prompt building ─────────────────────────────
 def build_context(sources: list[Source]) -> str:
