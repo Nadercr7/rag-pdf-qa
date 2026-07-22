@@ -104,3 +104,13 @@ Append-only. What changed + what was *verified*, per milestone. Survives context
 - Re-verified after fixes: pytest 19 passed; eval 17/17 (5/5 not-found exact) on the NEW collection
   pdfs_gemini_gemini-embedding-001_768 (fresh ingest proved namespacing).
 - User decisions: deploy = Streamlit Community Cloud (one manual step); repo = Nadercr7/rag-pdf-qa.
+
+## M11 — GitHub + live deploy (verified) — PROJECT DONE
+- Public repo pushed: https://github.com/Nadercr7/rag-pdf-qa (tree-verified: no .env, no key material).
+- Real-user stumble fixed in docs: Streamlit secrets box is TOML, not dotenv (value must be quoted).
+- User deployed on Streamlit Community Cloud → https://rag-pdf-7.streamlit.app
+- Live verification (frame-aware Playwright — Community Cloud wraps the app in an iframe):
+  grounded → "accrue 20 days ... [Source 2]" + citation meridian_employee_handbook.pdf p.1
+  (screenshots/03_live_grounded.png); pet-insurance → exact refusal, string match True
+  (screenshots/04_live_not_found.png). Corpus auto-seeded on the host (16 chunks / 4 docs).
+- Definition of Done: every box TRUE.

@@ -9,7 +9,9 @@ guardrail: if the answer isn't in the documents, it replies exactly
 Built on a **100% free stack** (Google Gemini free tier + Chroma + Streamlit), fully
 **provider-agnostic**: switch to OpenAI with one env var.
 
-**Live demo:** _deployment in progress — see [DEPLOY.md](DEPLOY.md)_
+**🚀 Live demo: <https://rag-pdf-7.streamlit.app>** — hosted free on Streamlit Community
+Cloud; the first load after idle can take a few seconds. Live-deployment proof shots:
+[grounded](screenshots/03_live_grounded.png) · [not-found](screenshots/04_live_not_found.png).
 
 | Grounded answer with citation | Out-of-docs question → exact refusal |
 |---|---|
