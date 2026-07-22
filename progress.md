@@ -26,3 +26,11 @@ Append-only. What changed + what was *verified*, per milestone. Survives context
 - Verified live (Gemini): batch doc embed → 2×768-d unit vectors; query 768-d unit; cosine sanity
   0.7786 (relevant) vs 0.5340 (unrelated) → ordering correct; chat generation OK via pool.
 - Data point for M8 threshold tuning: relevant ≈ 0.78, same-domain-unrelated ≈ 0.53 (default 0.6 plausible).
+
+## M3 — sample corpus PDFs (verified)
+- `scripts/make_sample_pdfs.py`: 4 fictional "Meridian Labs" docs (handbook, IT security, expense/travel,
+  benefits), 2 pages each, explicit per-page rendering (auto page break off) so fact→page is deterministic.
+- fpdf2 gotcha fixed: full-width `multi_cell` defaults `new_x=RIGHT` → next cell gets zero width; all cells
+  now return to LMARGIN.
+- Verified with pypdf: every doc = 2 pages; all 8 fact→page probes OK (e.g. "20 days of paid vacation" on
+  handbook p.1, "16 weeks" on benefits p.2). These probes mirror eval/golden.yaml citation ground truth.
