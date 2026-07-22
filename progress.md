@@ -48,3 +48,12 @@ Append-only. What changed + what was *verified*, per milestone. Survives context
   (cake recipe) 0.494, near-domain absent 0.649–0.672. Conclusion adopted: CHUNK 400/60,
   RELEVANCE_THRESHOLD 0.55 catches off-topic deterministically; near-domain absent questions are
   intrinsically inseparable by score and are handled by the LLM grounding gate (layer 2) — eval will prove it.
+
+## M6 — QA pipeline (verified)
+- `rag/qa.py`: gate 1 (threshold, deterministic, zero LLM calls) → numbered-source grounded prompt
+  (rule 4: "mentioning a topic is NOT answering") → gate 2 model refusal → gate 3 exact-string
+  normalization; `[Source i]` citation parsing tolerant of `[Sources 1, 2]`/`and`; cited sources
+  mapped back to {document, page}; `refusal_stage` recorded for observability.
+- Verified live: grounded → "20 days ... [Source 2]" cited handbook p.1; hard-negative (vehicle
+  allowance, retrieval 0.67 ABOVE threshold) → exact refusal via stage=model; off-topic (cake) →
+  exact refusal via stage=retrieval. Exact-string equality confirmed for both refusals.
