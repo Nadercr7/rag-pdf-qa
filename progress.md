@@ -14,7 +14,7 @@ Append-only. What changed + what was *verified*, per milestone. Survives context
 - Verified: `import chromadb, google.genai, streamlit, pypdf, openai, yaml, dotenv, fpdf` all OK.
   Pins: google-genai 2.13.0 · chromadb 1.5.9 · pypdf 6.14.2 · openai 2.47.0 · streamlit 1.60.0 · fpdf2 2.8.7 · numpy 2.4.6 · pytest 9.1.1.
 - `git init` (main); confirmed `.env` NOT staged.
-- ⚠ Deploy note: chromadb needs sqlite ≥ 3.35 → Streamlit Cloud may need the `pysqlite3-binary` swap; HF Spaces (Docker) is fine.
+- Deploy note: chromadb needs sqlite ≥ 3.35 → Streamlit Cloud may need the `pysqlite3-binary` swap; HF Spaces (Docker) is fine.
 
 ## M1+M2 — config + provider-agnostic LLM layer (verified)
 - `rag/config.py`: frozen `Settings`, env→st.secrets→defaults, provider validation, secret-masking repr,
@@ -114,3 +114,14 @@ Append-only. What changed + what was *verified*, per milestone. Survives context
   (screenshots/03_live_grounded.png); pet-insurance → exact refusal, string match True
   (screenshots/04_live_not_found.png). Corpus auto-seeded on the host (16 chunks / 4 docs).
 - Definition of Done: every box TRUE.
+
+## UI/UX redesign (portfolio polish, verified)
+- Professional theme (.streamlit/config.toml: Inter, indigo primary, borders/radius) + refined CSS
+  (citation chips, relevance badges, uppercase section labels, doc rows with chunk counts, gate notes).
+- Zero emojis anywhere (repo-wide sweep verified); Material icon font only (page icon, avatars, buttons).
+- New UX: example-question quick starts on the empty state (incl. one deliberate not-found), per-document
+  chunk stats sidebar, gate-transparency note under refusals, HTML-escaped user filenames (XSS-safe chips).
+- vectorstore.document_stats() added (tested); suite 19 passed.
+- CI: GitHub Actions workflow (offline pytest on push/PR) + README badge. Repo topics added.
+- Screenshots retaken with the new UI (00 home hero, 01 grounded, 02 not-found); live 03/04 refreshed
+  after Cloud auto-redeploy.

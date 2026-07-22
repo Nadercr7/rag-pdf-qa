@@ -63,8 +63,16 @@ class VectorStore:
         return bool(got["ids"])
 
     def list_documents(self) -> list[str]:
+        return sorted(self.document_stats())
+
+    def document_stats(self) -> dict[str, int]:
+        """Chunk count per ingested document (drives the sidebar knowledge-base list)."""
         got = self._col.get(include=["metadatas"])
-        return sorted({m["document_name"] for m in (got["metadatas"] or [])})
+        stats: dict[str, int] = {}
+        for m in got["metadatas"] or []:
+            name = str(m["document_name"])
+            stats[name] = stats.get(name, 0) + 1
+        return stats
 
     # ── writes ───────────────────────────────────────────────────────────────
     def add_chunks(self, chunks: list[Chunk], embeddings: Embeddings) -> int:

@@ -35,6 +35,7 @@ def test_add_is_idempotent_per_document(make_settings):
     assert store.add_chunks(_chunks(), emb) == 0  # same documents -> skipped whole
     assert store.count() == 3
     assert store.list_documents() == ["expense.pdf", "handbook.pdf", "security.pdf"]
+    assert store.document_stats() == {"expense.pdf": 1, "handbook.pdf": 1, "security.pdf": 1}
 
 
 def test_query_on_empty_store_returns_no_hits(make_settings):

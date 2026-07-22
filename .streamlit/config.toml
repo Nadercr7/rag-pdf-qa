@@ -1,0 +1,16 @@
+# Professional light theme for the demo UI. (Secrets never live here — see .gitignore.)
+[theme]
+base = "light"
+primaryColor = "#3B5BDB"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F7F8FA"
+textColor = "#1F2430"
+linkColor = "#3B5BDB"
+borderColor = "#E5E8EF"
+baseRadius = "0.5rem"
+buttonRadius = "0.5rem"
+font = "Inter, 'Segoe UI', sans-serif"
+headingFont = "Inter, 'Segoe UI', sans-serif"
+
+[browser]
+gatherUsageStats = false

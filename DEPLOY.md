@@ -29,9 +29,9 @@ connecting your GitHub account and pasting the secret.
      GEMINI_API_KEYS = "PASTE,YOUR,COMMA,SEPARATED,KEYS,HERE"
      ```
 
-     ⚠️ The secrets box is **TOML, not dotenv**: copying the raw `KEY=value` line from
-     `.env` fails with *"Invalid format: please enter valid TOML"*. The value must be
-     wrapped in double quotes (`KEY = "value"`), one `KEY = "..."` per line.
+     Important: the secrets box is **TOML, not dotenv** — copying the raw `KEY=value`
+     line from `.env` fails with *"Invalid format: please enter valid TOML"*. The value
+     must be wrapped in double quotes (`KEY = "value"`), one `KEY = "..."` per line.
 
 5. Click **Deploy**. First build takes ~2–5 minutes. On first load the app auto-ingests the
    sample corpus (a few seconds), then it's ready.

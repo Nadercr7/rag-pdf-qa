@@ -3,7 +3,7 @@
 Each milestone ends with a **Verify** step whose output is captured as evidence, and a git
 commit. Progress is appended to `progress.md` so work survives context resets.
 
-Legend: 🎯 = the "iterate until green" loop lives in M7–M8.
+The "iterate until green" loop lives in M7–M8.
 
 ---
 
@@ -52,12 +52,12 @@ Legend: 🎯 = the "iterate until green" loop lives in M7–M8.
 - **Verify:** one grounded question → correct answer + citation (doc+page); one clearly-absent
   question → exact `NOT_FOUND_MESSAGE`.
 
-### M7 — Tests (pytest)  🎯
+### M7 — Tests (pytest)
 - `test_chunking.py` (metadata preserved), `test_retrieval.py` (in-doc hits),
   `test_not_found.py` (a low-relevance/stub query hits gate 1 → not-found **without** an LLM call).
 - **Verify:** `pytest -q` all green; show output.
 
-### M8 — Eval (golden set)  🎯
+### M8 — Eval (golden set)
 - `eval/golden.yaml`: grounded Qs (with expected doc+page) + ≥1 not-found Q asserting the exact
   refusal (incl. a hard negative). `eval/eval.py` runs them and prints a pass/fail table.
 - **Tune** `RELEVANCE_THRESHOLD` here so grounded pass and not-found refuse. Iterate until green.
