@@ -1,0 +1,5 @@
+# OPTIONAL — zero-API-cost local embeddings (set EMBEDDING_PROVIDER=local).
+# Heavy: pulls in torch (~2 GB). Only install if you want to run embeddings locally
+# instead of via Gemini/OpenAI. The core app does NOT need this.
+#   pip install -r requirements-local.txt
+sentence-transformers==5.6.0   # all-MiniLM-L6-v2 -> 384-dim, CPU-friendly

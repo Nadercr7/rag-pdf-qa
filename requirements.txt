@@ -1,0 +1,12 @@
+# Core runtime — pinned, frozen from a real install (Python 3.11).
+#   pip install -r requirements.txt
+google-genai==2.13.0     # Gemini SDK (chat + embeddings). Current SDK — NOT google-generativeai.
+chromadb==1.5.9          # persistent vector store (cosine)
+pypdf==6.14.2            # text PDF extraction with page numbers (BSD, pure-Python, no OCR)
+openai==2.47.0           # first-class OpenAI provider path
+streamlit==1.60.0        # chat UI
+fpdf2==2.8.7             # generate the sample-corpus PDFs
+numpy==2.4.6             # L2-normalization of embeddings
+pyyaml==6.0.3            # eval/golden.yaml
+python-dotenv==1.2.2     # load .env locally
+pytest==9.1.1            # tests + eval assertions
