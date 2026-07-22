@@ -57,3 +57,13 @@ Append-only. What changed + what was *verified*, per milestone. Survives context
 - Verified live: grounded → "20 days ... [Source 2]" cited handbook p.1; hard-negative (vehicle
   allowance, retrieval 0.67 ABOVE threshold) → exact refusal via stage=model; off-topic (cake) →
   exact refusal via stage=retrieval. Exact-string equality confirmed for both refusals.
+
+## M7 — pytest suite (verified: 14 passed in 2.11s, fully offline)
+- `tests/fakes.py`: FakeEmbeddings (keyword→axis cosine geometry), StaticChat (records prompts),
+  RaisingChat (fails the test if the LLM is invoked at all).
+- test_chunking (5): size respected, nothing lost, overlap tail carried, doc+page metadata exact per
+  page, sample-corpus "16 weeks" only in p.2 chunks, unique ids, bad-overlap raises.
+- test_retrieval (4): hits with correct doc+page+relevance ordering, idempotent add, empty store, reset.
+- test_not_found (5): low-relevance → EXACT refusal with NO LLM call (RaisingChat proof,
+  stage=retrieval); drifted model refusal normalized to exact string; citations mapped to doc+page;
+  no-marker fallback to top source; parse_citations variants incl. out-of-range.
