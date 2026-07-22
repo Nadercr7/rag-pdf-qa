@@ -165,8 +165,8 @@ RAG/
 | `OPENAI_EMBED_MODEL` | `text-embedding-3-small` | |
 | `EMBED_DIM` | `768` (gemini) | truncation dim for Gemini; local=384, openai=1536 |
 | `TOP_K` | `4` | retrieved chunks |
-| `RELEVANCE_THRESHOLD` | tuned in Phase 4 | gate-1 cutoff on `1 - cosine_distance` |
-| `CHUNK_SIZE` / `CHUNK_OVERLAP` | `1000` / `150` | chunking |
+| `RELEVANCE_THRESHOLD` | `0.55` (tuned empirically) | gate-1 cutoff on `1 - cosine_distance`; grounded ≥ ~0.67, off-topic ~0.49 on the sample corpus |
+| `CHUNK_SIZE` / `CHUNK_OVERLAP` | `400` / `60` (tuned) | small chunks = topically coherent units → better relevance separation |
 | `CHROMA_DIR` | `./chroma_db` | persistence path |
 
 Config reads from `st.secrets` (deployed) falling back to environment / `.env` (local, via

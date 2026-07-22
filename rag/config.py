@@ -14,12 +14,14 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
+_REPO_ROOT = Path(__file__).resolve().parent.parent
+
 # Load a local .env from the repo root regardless of the current working directory.
 # On a deployed host there is usually no .env — this is then a harmless no-op.
 try:
     from dotenv import load_dotenv
 
-    load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+    load_dotenv(_REPO_ROOT / ".env")
 except Exception:  # pragma: no cover - dotenv is a pinned dep; stay defensive anyway
     pass
 
@@ -127,8 +129,17 @@ def get_settings() -> Settings:
         openai_embed_model=_get("OPENAI_EMBED_MODEL", "text-embedding-3-small") or "text-embedding-3-small",
         embed_dim=embed_dim,
         top_k=int(_get("TOP_K", "4")),
-        relevance_threshold=float(_get("RELEVANCE_THRESHOLD", "0.6")),
-        chunk_size=int(_get("CHUNK_SIZE", "1000")),
-        chunk_overlap=int(_get("CHUNK_OVERLAP", "150")),
-        chroma_dir=_get("CHROMA_DIR", "./chroma_db") or "./chroma_db",
+        # Tuned on the sample corpus: grounded >= ~0.67, off-topic ~0.49 (see progress.md).
+        relevance_threshold=float(_get("RELEVANCE_THRESHOLD", "0.55")),
+        # Small chunks = topically coherent units -> markedly better relevance separation.
+        chunk_size=int(_get("CHUNK_SIZE", "400")),
+        chunk_overlap=int(_get("CHUNK_OVERLAP", "60")),
+        chroma_dir=_resolve_dir(_get("CHROMA_DIR", "./chroma_db") or "./chroma_db"),
     )
+
+
+def _resolve_dir(raw: str) -> str:
+    """Anchor a relative CHROMA_DIR to the repo root so every entrypoint (CLI, tests,
+    Streamlit, eval) uses the same store regardless of the current working directory."""
+    p = Path(raw)
+    return str(p if p.is_absolute() else (_REPO_ROOT / p).resolve())

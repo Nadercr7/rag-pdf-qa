@@ -34,3 +34,17 @@ Append-only. What changed + what was *verified*, per milestone. Survives context
   now return to LMARGIN.
 - Verified with pypdf: every doc = 2 pages; all 8 fact→page probes OK (e.g. "20 days of paid vacation" on
   handbook p.1, "16 weeks" on benefits p.2). These probes mirror eval/golden.yaml citation ground truth.
+
+## M4+M5 — ingest + Chroma vectorstore (verified) + chunking tuned
+- `rag/ingest.py`: per-page extraction (1-based) + dependency-free recursive splitter (coarse→fine
+  separators, greedy packing, overlap tail); `Chunk{text, document_name, page_number, chunk_index}`,
+  id `doc::pN::cM`. Accepts paths or upload streams.
+- `rag/vectorstore.py`: PersistentClient, cosine (`configuration={"hnsw":{"space":"cosine"}}`), explicit
+  vectors only (provider stays in llm.py), idempotent add by document_name, relevance = 1 − distance.
+- `scripts/ingest_cli.py`; `CHROMA_DIR` now anchored to repo root (same store from any CWD).
+- Verified live: 4 PDFs ingested; re-run → 0 added (idempotent); retrieval lands correct doc+page.
+- **Chunking experiment** (full-page 1000/150 vs 400/60): grounded best 0.69/0.67 vs absent-topic best
+  0.65/0.61 at page-size — margin too thin. At 400/60 (16 chunks): grounded 0.677–0.726, off-topic
+  (cake recipe) 0.494, near-domain absent 0.649–0.672. Conclusion adopted: CHUNK 400/60,
+  RELEVANCE_THRESHOLD 0.55 catches off-topic deterministically; near-domain absent questions are
+  intrinsically inseparable by score and are handled by the LLM grounding gate (layer 2) — eval will prove it.
