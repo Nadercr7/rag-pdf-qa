@@ -65,6 +65,38 @@ def test_answer_without_markers_falls_back_to_top_source(make_settings):
     assert [(x.document_name, x.page_number) for x in a.sources] == [("handbook.pdf", 1)]
 
 
+def test_out_of_range_markers_are_stripped_from_display(make_settings):
+    s = make_settings()
+    store, emb = _seeded(s)
+    chat = StaticChat("You get 20 days of vacation [Source 7].")  # source 7 doesn't exist
+    a = answer("How many vacation days do employees get?", store, emb, chat, s)
+    assert a.not_found is False
+    assert "[Source 7]" not in a.text  # unresolvable marker removed from display
+    assert a.citations == [("handbook.pdf", 1)]  # provenance falls back to top source
+
+
+def test_paraphrased_refusal_without_citations_is_normalized(make_settings):
+    s = make_settings()
+    store, emb = _seeded(s)
+    chat = StaticChat("The provided sources do not contain information about that topic.")
+    a = answer("How many vacation days do employees get?", store, emb, chat, s)
+    assert a.not_found is True
+    assert a.text == NOT_FOUND_MESSAGE
+    assert a.refusal_stage == "model"
+
+
+def test_legitimate_answer_is_never_reclassified_as_refusal(make_settings):
+    s = make_settings()
+    store, emb = _seeded(s)
+    # cites a source AND contains refusal-ish words deep in the sentence
+    chat = StaticChat(
+        "Restricted data must never be copied to devices; the policy does not provide "
+        "exceptions [Source 1]."
+    )
+    a = answer("What are the vacation rules?", store, emb, chat, s)
+    assert a.not_found is False
+
+
 def test_citations_dedupe_same_document_and_page(make_settings):
     s = make_settings()
     store, emb = VectorStore(s), FakeEmbeddings(AXES)

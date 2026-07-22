@@ -26,6 +26,20 @@ from rag.vectorstore import VectorStore
 ROOT = Path(__file__).resolve().parent.parent
 
 
+def _contains(haystack: str, needle: str) -> bool:
+    """Case-insensitive containment with digit boundaries: '3' must not match '30'
+    or '13', and '6%' must not match '16%'."""
+    import re
+
+    h, n = haystack.lower(), needle.lower()
+    pattern = re.escape(n)
+    if n[0].isdigit():
+        pattern = r"(?<!\d)" + pattern
+    if n[-1].isdigit():
+        pattern = pattern + r"(?!\d)"
+    return re.search(pattern, h) is not None
+
+
 def _judge(q: dict, a: Answer) -> tuple[bool, str]:
     """Return (passed, human-readable detail) for one golden question."""
     if q["type"] == "not_found":
@@ -36,7 +50,7 @@ def _judge(q: dict, a: Answer) -> tuple[bool, str]:
     # grounded
     if a.not_found:
         return False, f"unexpected refusal (stage={a.refusal_stage})"
-    missing = [t for t in q.get("expect_answer_contains", []) if t.lower() not in a.text.lower()]
+    missing = [t for t in q.get("expect_answer_contains", []) if not _contains(a.text, t)]
     if missing:
         return False, f"answer missing {missing}: {a.text[:70]!r}"
     cited = a.citations  # unique (document, page), first-mention order

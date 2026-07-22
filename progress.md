@@ -88,3 +88,19 @@ Append-only. What changed + what was *verified*, per milestone. Survives context
   screenshots/01_grounded_answer_with_citation.png — "20 days ... [Source 2]" + "Sources:
   meridian_employee_handbook.pdf — p.1"; screenshots/02_not_found_exact_reply.png — vehicle-allowance
   question answered with the exact refusal and no citations. DOM assert: last message == exact string.
+
+## M10 — adversarial review + fixes (verified)
+- Fresh-eyes subagent reviewed repo vs SPEC/PLAN + 9 hard requirements: NO blockers, all requirements MET;
+  7 findings (1 major, 6 minor) — ALL fixed:
+  F1 upload path: per-file try/except + per-file feedback (bad PDF can't sink the run) — also covers F5
+  (named "already ingested — skipped" notices). F2 splitter: overlap tail dropped when tail+atom would
+  exceed cap → chunk_size now a strict invariant (+ regression test). F3 qa: out-of-range [Source i]
+  markers stripped from display; conservative paraphrased-refusal normalization (short, citation-free,
+  inability phrase in the opening) + false-positive guard test. F4 eval judge: digit-boundary matching
+  ("3" no longer matches "30"). F6 collection namespaced by provider+MODEL+dim. F7 EMBED_DIM commented
+  out (per-provider defaults rule).
+- Deploy-proofing: pysqlite3 swap shim in vectorstore.py + commented dep in requirements.txt (Streamlit
+  Cloud sqlite gotcha); README.md, DEPLOY.md (click-by-click Streamlit Cloud + HF alternative), LICENSE.
+- Re-verified after fixes: pytest 19 passed; eval 17/17 (5/5 not-found exact) on the NEW collection
+  pdfs_gemini_gemini-embedding-001_768 (fresh ingest proved namespacing).
+- User decisions: deploy = Streamlit Community Cloud (one manual step); repo = Nadercr7/rag-pdf-qa.

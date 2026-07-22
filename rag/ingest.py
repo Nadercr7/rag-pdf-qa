@@ -73,13 +73,18 @@ def _atomize(text: str, chunk_size: int, seps: Sequence[str]) -> list[str]:
 
 
 def _pack(atoms: Sequence[str], chunk_size: int, overlap: int) -> list[str]:
-    """Greedily merge atoms into chunks <= chunk_size, carrying an overlap tail."""
+    """Greedily merge atoms into chunks <= chunk_size, carrying an overlap tail.
+
+    The tail is dropped when tail+atom would exceed chunk_size (atoms themselves are
+    guaranteed <= chunk_size by _atomize), so the size cap holds strictly.
+    """
     chunks: list[str] = []
     cur = ""
     for atom in atoms:
         if cur and len(cur) + len(atom) > chunk_size:
             chunks.append(cur.strip())
-            cur = cur[-overlap:] if overlap > 0 else ""
+            tail = cur[-overlap:] if overlap > 0 else ""
+            cur = tail if len(tail) + len(atom) <= chunk_size else ""
         cur += atom
     if cur.strip():
         chunks.append(cur.strip())

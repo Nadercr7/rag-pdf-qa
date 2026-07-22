@@ -97,12 +97,47 @@ def parse_citations(text: str, n_sources: int) -> list[int]:
     return order
 
 
+def strip_invalid_markers(text: str, n_sources: int) -> str:
+    """Remove bracketed source markers that reference only nonexistent sources
+    (e.g. '[Source 9]' when 4 sources exist) so the display never shows a marker
+    that cannot be resolved to a real document+page."""
+
+    def _keep_or_drop(match: re.Match) -> str:
+        nums = [int(x) for x in re.findall(r"\d+", match.group(1))]
+        return match.group(0) if any(1 <= i <= n_sources for i in nums) else ""
+
+    cleaned = _CITE_RE.sub(_keep_or_drop, text)
+    return re.sub(r" {2,}", " ", cleaned).strip()
+
+
 # ────────────────────────────── refusal handling ────────────────────────────
+_REFUSAL_HINTS = (
+    "couldn't find", "could not find", "cannot find", "can't find",
+    "no information", "not mentioned", "not covered", "not specified", "not stated",
+    "do not contain", "does not contain", "doesn't contain",
+    "do not provide", "does not provide", "doesn't provide",
+    "cannot answer", "can't answer", "not enough information",
+)
+
+
 def _as_refusal(text: str) -> bool:
     """True iff the reply is the contractual refusal (tolerating trivial drift)."""
     t = text.strip().strip('"').strip()
     target = NOT_FOUND_MESSAGE.rstrip(".")
     return t.rstrip(".!").lower() == target.lower() or t.lower().startswith(target.lower())
+
+
+def _looks_like_refusal(text: str, has_citations: bool) -> bool:
+    """Contract refusal, or a *paraphrased* refusal: a short reply with no valid
+    citations that OPENS with an inability statement. Deliberately conservative —
+    a grounded answer that merely contains e.g. 'does not provide' deeper in the
+    sentence, or cites any source, is never reclassified."""
+    if _as_refusal(text):
+        return True
+    if has_citations:
+        return False
+    t = text.strip().lower()
+    return len(t.split()) <= 30 and any(h in t[:60] for h in _REFUSAL_HINTS)
 
 
 # ─────────────────────────────── the pipeline ───────────────────────────────
@@ -140,18 +175,21 @@ def answer(
     # 3. grounded generation
     reply = chat.generate(SYSTEM_PROMPT, build_user_prompt(question, sources))
 
-    # 4. gates 2+3 — model-level refusal, normalized to the exact contract string
-    if not reply or _as_refusal(reply):
+    # 4. citations first — refusal classification depends on whether anything was cited
+    cited = parse_citations(reply, n_sources=len(sources))
+
+    # 5. gates 2+3 — model-level refusal (exact or paraphrased), normalized verbatim
+    if not reply or _looks_like_refusal(reply, has_citations=bool(cited)):
         return Answer(
             text=NOT_FOUND_MESSAGE, sources=[], retrieved=sources,
             not_found=True, refusal_stage="model",
         )
 
-    # 5. citations — map the model's [Source i] markers back to documents/pages
-    cited = parse_citations(reply, n_sources=len(sources))
+    # 6. map [Source i] markers back to documents/pages; drop unresolvable markers
+    text = strip_invalid_markers(reply, n_sources=len(sources))
     if cited:
         used = [sources[i - 1] for i in cited]
     else:
         used = [sources[0]]  # answered without markers: surface best source as provenance
 
-    return Answer(text=reply, sources=used, retrieved=sources, not_found=False, refusal_stage=None)
+    return Answer(text=text, sources=used, retrieved=sources, not_found=False, refusal_stage=None)

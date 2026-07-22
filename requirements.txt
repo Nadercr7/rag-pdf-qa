@@ -10,3 +10,7 @@ numpy==2.4.6             # L2-normalization of embeddings
 pyyaml==6.0.3            # eval/golden.yaml
 python-dotenv==1.2.2     # load .env locally
 pytest==9.1.1            # tests + eval assertions
+
+# pysqlite3-binary       # uncomment ONLY if the deploy host errors with
+#                        # "unsupported version of sqlite3" (see DEPLOY.md) -
+#                        # rag/vectorstore.py swaps it in automatically when present.

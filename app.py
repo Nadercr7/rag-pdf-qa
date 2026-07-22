@@ -51,14 +51,30 @@ with st.sidebar:
         "Add text PDFs (no OCR)", type="pdf", accept_multiple_files=True
     )
     if uploads and st.button("Ingest uploaded PDFs", use_container_width=True):
+        results: list[str] = []
         with st.spinner("Chunking + embedding..."):
-            added = 0
-            for f in uploads:
-                added += store.add_chunks(
-                    chunk_pdf(f, document_name=f.name, settings=s), emb
-                )
-        st.success(f"Added {added} chunk(s). Already-ingested files are skipped.")
-        st.rerun()
+            for f in uploads:  # one bad file (encrypted/corrupt) must not sink the rest
+                try:
+                    chunks = chunk_pdf(f, document_name=f.name, settings=s)
+                    if not chunks:
+                        results.append(f"⚠️ {f.name}: no extractable text (scanned PDF?)")
+                        continue
+                    added = store.add_chunks(chunks, emb)
+                    if added:
+                        results.append(f"✅ {f.name}: {added} chunk(s) added")
+                    else:
+                        results.append(
+                            f"⏭️ {f.name}: a document with this name is already "
+                            "ingested — skipped"
+                        )
+                except Exception as exc:  # noqa: BLE001 - surface per file, keep going
+                    results.append(f"❌ {f.name}: failed ({exc})")
+        st.session_state["ingest_results"] = results
+        st.rerun()  # refresh the sidebar document list; results shown after rerun
+
+    if msgs := st.session_state.pop("ingest_results", None):
+        for line in msgs:
+            st.caption(line)
 
     st.divider()
     if st.button("🔄 Reset conversation", use_container_width=True):

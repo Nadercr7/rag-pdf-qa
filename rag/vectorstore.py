@@ -14,6 +14,17 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+# Some hosts (e.g. Streamlit Community Cloud) ship a system sqlite3 older than the
+# >= 3.35 chromadb requires. If pysqlite3-binary is installed (see the commented
+# line in requirements.txt), transparently swap it in BEFORE chromadb imports sqlite3.
+try:  # pragma: no cover - deployment-environment shim
+    __import__("pysqlite3")
+    import sys as _sys
+
+    _sys.modules["sqlite3"] = _sys.modules.pop("pysqlite3")
+except ImportError:
+    pass
+
 import chromadb
 
 from .config import Settings, get_settings

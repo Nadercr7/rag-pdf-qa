@@ -10,6 +10,7 @@ Secrets are never printed: ``Settings.__repr__`` masks all keys.
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
@@ -74,9 +75,20 @@ class Settings:
     chroma_dir: str
 
     @property
+    def embed_model(self) -> str:
+        """The embedding model actually in use for the active embedding provider."""
+        if self.embedding_provider == "gemini":
+            return self.gemini_embed_model
+        if self.embedding_provider == "openai":
+            return self.openai_embed_model
+        return "all-MiniLM-L6-v2"  # local
+
+    @property
     def collection_name(self) -> str:
-        # Namespaced by provider+dim: vector spaces of differing dimension must never mix.
-        return f"pdfs_{self.embedding_provider}_{self.embed_dim}"
+        # Namespaced by provider + embed model + dim: vectors from different models or
+        # dimensions must never share a collection (their spaces are incompatible).
+        slug = re.sub(r"[^a-zA-Z0-9]+", "-", self.embed_model).strip("-")
+        return f"pdfs_{self.embedding_provider}_{slug}_{self.embed_dim}"
 
     def __repr__(self) -> str:  # never leak secrets into logs/among evidence
         shown = ", ".join(_mask(k) for k in self.gemini_api_keys[:2])

@@ -26,6 +26,15 @@ def test_split_text_overlap_carries_tail_between_chunks():
         assert a.split()[-1] in b  # last word of a chunk reappears in the next
 
 
+def test_split_text_never_exceeds_chunk_size_even_with_large_atoms():
+    # 90-char unbroken atoms: naive overlap-carry would emit tail+atom > chunk_size
+    text = ". ".join("x" * 90 for _ in range(10))
+    pieces = split_text(text, chunk_size=100, overlap=30)
+    assert len(pieces) > 1
+    assert all(len(p) <= 100 for p in pieces), [len(p) for p in pieces]
+    assert any("x" * 90 in p for p in pieces)  # content still intact
+
+
 def test_split_text_edge_cases():
     assert split_text("   \n  ", 100, 10) == []
     assert split_text("short", 100, 10) == ["short"]
