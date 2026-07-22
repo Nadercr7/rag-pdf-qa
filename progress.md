@@ -78,3 +78,13 @@ Append-only. What changed + what was *verified*, per milestone. Survives context
   EXACT string via stage=model (rule-4 grounding works); off-topic refused via stage=retrieval (no LLM).
 - Added `Answer.citations` (unique doc+page, order-preserving) after spotting a duplicate "p.1, p.1"
   display on 401k-match; covered by an offline test. pytest now 15 passed.
+
+## M9 — Streamlit UI + screenshots (verified)
+- `app.py`: chat with history replay, per-message doc+page citation captions, "Retrieved context"
+  expander with relevance scores, multi-PDF upload → idempotent ingest, Reset conversation,
+  auto-seed of sample corpus on an empty store, `$`-escaping (Streamlit KaTeX gotcha),
+  `@st.cache_resource` backend, visible provider/threshold footer.
+- Verified via Playwright driving the real app (dev-only tool, not in requirements):
+  screenshots/01_grounded_answer_with_citation.png — "20 days ... [Source 2]" + "Sources:
+  meridian_employee_handbook.pdf — p.1"; screenshots/02_not_found_exact_reply.png — vehicle-allowance
+  question answered with the exact refusal and no citations. DOM assert: last message == exact string.
